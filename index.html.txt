@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <base target="_top">
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        margin: 20px;
+      }
+      .container {
+        max-width: 600px;
+        margin: 0 auto;
+        text-align: center;
+      }
+      input[type="text"] {
+        width: 100%;
+        padding: 10px;
+        margin: 10px 0;
+        font-size: 16px;
+      }
+      button {
+        padding: 10px 20px;
+        font-size: 16px;
+        cursor: pointer;
+      }
+      .result {
+        margin-top: 20px;
+        text-align: left;
+      }
+      .error {
+        color: red;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <h1>Tìm Kiếm Thí Sinh</h1>
+      <p>Nhập ID thí sinh để tìm kiếm thông tin:</p>
+      <input type="text" id="studentID" placeholder="Nhập ID thí sinh">
+      <button onclick="searchStudent()">Tìm Kiếm</button>
+
+      <div class="result" id="result"></div>
+    </div>
+
+    <script>
+      const APP_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwxWrZYNHX3A_iaAtwctSQJkEPdr8F3OwEJq0GA2IoBJCLqO8NjuyDEPdaHy1IvG-Ip/exec";
+
+      function searchStudent() {
+        var studentID = document.getElementById("studentID").value;
+        if (studentID.trim() === "") {
+          alert("Vui lòng nhập ID thí sinh!");
+          return;
+        }
+        
+        // Gọi API từ Google Apps Script
+        fetch(APP_SCRIPT_URL + "?studentID=" + studentID)
+          .then(response => response.json())
+          .then(data => displayResult(data))
+          .catch(error => displayError(error));
+      }
+
+      function displayResult(result) {
+        var resultDiv = document.getElementById("result");
+        resultDiv.innerHTML = "";
+
+        if (result.message) {
+          resultDiv.innerHTML = "<p class='error'>" + result.message + "</p>";
+        } else {
+          resultDiv.innerHTML = "<h3>Thông tin thí sinh:</h3>" +
+                                "<p><strong>Tên:</strong> " + result.name + "</p>" +
+                                "<p><strong>Phòng thi:</strong> " + result.testRoom + "</p>" +
+                                "<p><strong>Địa điểm thi:</strong> " + result.testLocation + "</p>" +
+                                "<p><strong>Tầng:</strong> " + result.floor + "</p>" +
+                                "<p><strong>Ngày thi:</strong> " + result.testDate + "</p>";
+        }
+      }
+
+      function displayError(error) {
+        var resultDiv = document.getElementById("result");
+        resultDiv.innerHTML = "<p class='error'>Đã có lỗi xảy ra, vui lòng thử lại!</p>";
+      }
+    </script>
+  </body>
+</html>
