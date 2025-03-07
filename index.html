@@ -1,84 +1,52 @@
 <!DOCTYPE html>
-<html>
-  <head>
-    <base target="_top">
-    <style>
-      body {
-        font-family: Arial, sans-serif;
-        margin: 20px;
-      }
-      .container {
-        max-width: 600px;
-        margin: 0 auto;
-        text-align: center;
-      }
-      input[type="text"] {
-        width: 100%;
-        padding: 10px;
-        margin: 10px 0;
-        font-size: 16px;
-      }
-      button {
-        padding: 10px 20px;
-        font-size: 16px;
-        cursor: pointer;
-      }
-      .result {
-        margin-top: 20px;
-        text-align: left;
-      }
-      .error {
-        color: red;
-      }
-    </style>
-  </head>
-  <body>
-    <div class="container">
-      <h1>Tìm Kiếm Thí Sinh</h1>
-      <p>Nhập ID thí sinh để tìm kiếm thông tin:</p>
-      <input type="text" id="studentID" placeholder="Nhập ID thí sinh">
-      <button onclick="searchStudent()">Tìm Kiếm</button>
-
-      <div class="result" id="result"></div>
-    </div>
-
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Search Student Information</title>
     <script>
-      const APP_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwxWrZYNHX3A_iaAtwctSQJkEPdr8F3OwEJq0GA2IoBJCLqO8NjuyDEPdaHy1IvG-Ip/exec";
-
-      function searchStudent() {
-        var studentID = document.getElementById("studentID").value;
-        if (studentID.trim() === "") {
-          alert("Vui lòng nhập ID thí sinh!");
-          return;
+        // Hàm tìm kiếm thí sinh theo ID
+        function searchStudent() {
+            var studentID = document.getElementById("studentID").value;  // Lấy ID thí sinh từ ô input
+            
+            // Cập nhật URL API Google Apps Script mới
+            var url = "https://script.google.com/macros/s/AKfycbzbqhCkkrXlP_cPGrCgqT0GHOdOk_RM_wNXOpE3PJjgjqSB-f1fN96KgtGQZWkxvHgo/exec?studentID=" + studentID;
+            
+            // Gửi yêu cầu đến API và xử lý kết quả
+            fetch(url)
+                .then(response => response.json())  // Chuyển đổi dữ liệu trả về thành JSON
+                .then(data => {
+                    if (data.message) {
+                        // Hiển thị thông báo nếu không tìm thấy thí sinh
+                        document.getElementById("result").innerHTML = "<p>" + data.message + "</p>";
+                    } else {
+                        // Hiển thị thông tin thí sinh nếu tìm thấy
+                        document.getElementById("result").innerHTML = `
+                            <p><strong>Name:</strong> ${data.name}</p>
+                            <p><strong>Test Room:</strong> ${data.testRoom}</p>
+                            <p><strong>Test Location:</strong> ${data.testLocation}</p>
+                            <p><strong>Floor:</strong> ${data.floor}</p>
+                            <p><strong>Test Date:</strong> ${data.testDate}</p>
+                        `;
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    document.getElementById("result").innerHTML = "<p>Đã xảy ra lỗi trong quá trình tìm kiếm.</p>";
+                });
         }
-        
-        // Gọi API từ Google Apps Script
-        fetch(APP_SCRIPT_URL + "?studentID=" + studentID)
-          .then(response => response.json())
-          .then(data => displayResult(data))
-          .catch(error => displayError(error));
-      }
-
-      function displayResult(result) {
-        var resultDiv = document.getElementById("result");
-        resultDiv.innerHTML = "";
-
-        if (result.message) {
-          resultDiv.innerHTML = "<p class='error'>" + result.message + "</p>";
-        } else {
-          resultDiv.innerHTML = "<h3>Thông tin thí sinh:</h3>" +
-                                "<p><strong>Tên:</strong> " + result.name + "</p>" +
-                                "<p><strong>Phòng thi:</strong> " + result.testRoom + "</p>" +
-                                "<p><strong>Địa điểm thi:</strong> " + result.testLocation + "</p>" +
-                                "<p><strong>Tầng:</strong> " + result.floor + "</p>" +
-                                "<p><strong>Ngày thi:</strong> " + result.testDate + "</p>";
-        }
-      }
-
-      function displayError(error) {
-        var resultDiv = document.getElementById("result");
-        resultDiv.innerHTML = "<p class='error'>Đã có lỗi xảy ra, vui lòng thử lại!</p>";
-      }
     </script>
-  </body>
+</head>
+<body>
+    <h1>Search Student Information</h1>
+    <form id="searchForm">
+        <label for="studentID">Enter Student ID:</label>
+        <input type="text" id="studentID" name="studentID" required>
+        <button type="button" onclick="searchStudent()">Search</button>
+    </form>
+    
+    <div id="result">
+        <!-- Kết quả tìm kiếm sẽ hiển thị ở đây -->
+    </div>
+</body>
 </html>
